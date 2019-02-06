@@ -13,7 +13,7 @@ import br.com.kickpost.ftop.listeners.onPlayerCommand;
 
 public class FTop extends JavaPlugin {
 
-	public static VaultHook Vault;
+	public static VaultHook vault;
 
 	public void onEnable() {
 		loadConfiguration();
@@ -25,7 +25,6 @@ public class FTop extends JavaPlugin {
 
 	private void registerListeners() {
 		PluginManager pm = Bukkit.getPluginManager();
-
 		pm.registerEvents(new onPlayerCommand(), this);
 		pm.registerEvents(new onClickInventory(), this);
 	}
@@ -35,7 +34,7 @@ public class FTop extends JavaPlugin {
 	}
 
 	private void loadHook() {
-		Vault = new VaultHook();
+		vault = new VaultHook();
 	}
 	
 	private void loadHeads() {
@@ -50,4 +49,5 @@ public class FTop extends JavaPlugin {
 	public static FTop getPlugin() {
 		return FTop.getPlugin(FTop.class);
 	}
+	
 }

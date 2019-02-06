@@ -83,13 +83,43 @@ public class FactionsUtils {
 		return organizeMapCoins(valueMap);
 	}
 	
+	public static Map<Faction, Double[]> organizeMapGeneral(HashMap<Faction, HashMap<EntityType, Integer>> valueMapSpawners, Map<Faction, Double> valueMapCoins) {
+		
+		Map<Faction, Double[]> valueMap = new HashMap<>();
+		for (Entry<Faction, HashMap<EntityType, Integer>> s : valueMapSpawners.entrySet()) {
+			Double[] value = new Double[2];
+			value[0] = valueMapCoins.get(s.getKey());
+			value[1] = getMobSpawnersValor(s.getValue());
+			valueMap.put(s.getKey(), value);
+		}
+		
+		List<Entry<Faction, Double[]>> list = new LinkedList<Entry<Faction, Double[]>>(valueMap.entrySet());
+		
+		// Sorting the list based on values
+		Collections.sort(list, new Comparator<Entry<Faction, Double[]>>() {
+			public int compare(Entry<Faction, Double[]> o1, Entry<Faction, Double[]> o2) {
+				return Double.compare(o2.getValue()[0] + o2.getValue()[1], o1.getValue()[0] + o1.getValue()[1]);
+			}
+		});
+
+		// Maintaining insertion order with the help of LinkedList
+		Map<Faction, Double[]> sortedMap = new LinkedHashMap<>();
+		Integer v = 1;
+		for (Entry<Faction, Double[]> entry : list) {
+			sortedMap.put(entry.getKey(), entry.getValue());
+			if (v == 21) break;
+			v++;
+		}
+		return sortedMap;
+	}
+	
 	@SuppressWarnings("deprecation")
-	public static double getMobSpawnersValor(HashMap<EntityType, Integer> map) {
+	private static double getMobSpawnersValor(HashMap<EntityType, Integer> map) {
 		double valor = 0D;
 		for (Entry<EntityType, Integer> s : map.entrySet()) {
 			try {
 				valor += ConfigurationLoader.ENTITY_BY_PRICE.get(s.getKey().getName().toUpperCase()) * s.getValue();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				continue;
 			}
 		}

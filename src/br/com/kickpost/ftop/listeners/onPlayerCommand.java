@@ -12,10 +12,9 @@ public class onPlayerCommand implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	public void onCommand(PlayerCommandPreprocessEvent e) {
 		String message = e.getMessage().toLowerCase();
-
 		if (message.startsWith("/f top")) {
 			e.setCancelled(true);
-			new InventoryLoader(e.getPlayer(), Type.COINS);
+			new InventoryLoader(e.getPlayer(), Type.MENU);
 		}
 	}
 

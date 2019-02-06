@@ -12,6 +12,7 @@ import org.bukkit.entity.EntityType;
 import com.massivecraft.factions.entity.Faction;
 
 import br.com.kickpost.ftop.FTop;
+import br.com.kickpost.ftop.inventory.utils.EntityName;
 
 public class FactionsManager {
 
@@ -23,12 +24,13 @@ public class FactionsManager {
 	public static final DecimalFormat FORMATTER = new DecimalFormat("###,###,###", DFS);
 
 	private Faction faction;
-	private Double value;
+	private Double coins;
 	private Integer power;
+	private Double[] value;
 	
-	public FactionsManager(Faction faction, Double value) {
+	public FactionsManager(Faction faction, Double coins) {
 		this.faction = faction;
-		this.value = value;
+		this.coins = coins;
 	}
 	
 	public FactionsManager(Faction faction, Integer power) {
@@ -39,6 +41,11 @@ public class FactionsManager {
 	public FactionsManager(Faction faction, HashMap<EntityType, Integer> spawners) {
 		this.faction = faction;
 	}
+	
+	public FactionsManager(Faction faction, Double[] value) {
+		this.faction = faction;
+		this.value = value;
+	}
 
 	public int getSpawnersTotal() {
 		return SPAWNERS_BY_FACTION.containsKey(faction) ? SPAWNERS_BY_FACTION.get(faction).values().stream().mapToInt(Integer::intValue).sum() : 0;
@@ -47,7 +54,7 @@ public class FactionsManager {
 	public ArrayList<String> geradoresToString() {
 		ArrayList<String> geradoresString = new ArrayList<>();
 		
-		geradoresString.add("§fTotal de coins dos " + getSpawnersTotal() + " geradores: §7"	+ FORMATTER.format(value));
+		geradoresString.add("§fTotal de coins dos " + getSpawnersTotal() + " geradores: §7"	+ FORMATTER.format(coins));
 		
 		if (getSpawnersTotal() == 0)
 			return geradoresString;
@@ -66,10 +73,10 @@ public class FactionsManager {
 	public ArrayList<String> coinsToString() {
 		ArrayList<String> coinsString = new ArrayList<>();
 		
-		coinsString.add("§fCoins: §7" + FORMATTER.format(value));
+		coinsString.add("§fCoins: §7" + FORMATTER.format(coins));
 		coinsString.add("");
 		
-		faction.getMPlayers().forEach(p -> coinsString.add("§f" + p.getName() + ": §7" + FORMATTER.format(FTop.Vault.getSaldo(p.getName()))));
+		faction.getMPlayers().forEach(p -> coinsString.add("§f" + p.getName() + ": §7" + FORMATTER.format(FTop.vault.getSaldo(p))));
 		return coinsString;
 	}
 
@@ -83,36 +90,25 @@ public class FactionsManager {
 		
 		return powerString;
 	}
+	
+	public ArrayList<String> valueToString() {
+		ArrayList<String> valueString = new ArrayList<>();
+		
+		valueString.add("§fValor da Facção: §6" + FORMATTER.format(value[0] + value[1]));
+		valueString.add("");
+		valueString.add("§fTotal em Coins: §7" + FORMATTER.format(value[0]));
+		valueString.add("§fTotal em Geradores: §7" + FORMATTER.format(value[1]));
+		
+		return valueString;
+	}
 
 	@SuppressWarnings("deprecation")
 	private String getEntityName(EntityType tipo) {
 		try {
-			return EntityNames.valueOf(tipo.getName().toUpperCase()).getNome();
-		} catch (Exception e) {
+			return EntityName.valueOf(tipo).getName();
+		} catch (Throwable e) {
 			return tipo.getName().replace("_", "");
 		}
 	}
 
-}
-
-enum EntityNames {
-
-	LAVASLIME("Cubo de Magma"), BLAZE("Blaze"), CAVESPIDER("Aranha da Caverna"), 
-	CHICKEN("Galinha"), COW("Vaca"), CREEPER("Creeper"), ENTITYHORSE("Cavalo"), 
-	ENDERMITE("Endermite"), GHAST("Ghast"), GUARDIAN("Guardião"), PIG("Porco"),
-	BAT("Morcego"),VILLAGERGOLEM("Golem de Ferro"), ENDERMAN("Enderman"),
-	MUSHROOMCOW("Vaca de Cogumelo"), OZELOT("Jaguatirica"), HORSE("Cavalo"), 
-	PIGZOMBIE("Porco Zumbi"), RABBIT("Coelho"), SHEEP("Ovelha"), SLIME("Slime"),
-	SKELETON("Esqueleto"), SPIDER("Aranha"), WITCH("Bruxa"), WITHERBOSS("Wither"),
-	ZOMBIE("Zumbi"), SNOWMAN("Golem de Neve"), SQUID("Lula"), WOLF("Lobo");
-
-	private String nome;
-
-	private EntityNames(String nome) {
-		this.nome = nome;
-	}
-
-	public String getNome() {
-		return nome;
-	}
 }

@@ -1,10 +1,8 @@
 package br.com.kickpost.ftop.factions;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
@@ -29,14 +27,14 @@ public class FactionsLoader {
 	
 	public static void loadAllFactions() {
 		
-		FactionsManager.SPAWNERS_BY_FACTION.clear();
-		FactionsManager.POWER_BY_FACTION.clear();
-		FactionsManager.COINS_BY_FACTION.clear();
-
+		InventoryLoader.updateMenu();
+		
 		new BukkitRunnable() 
 		{
 			public void run() 
 			{
+				FactionsManager.POWER_BY_FACTION.clear();
+				FactionsManager.COINS_BY_FACTION.clear();
 				for (Faction faction : FactionColl.get().getAll()) 
 				{
 					String factionId = faction.getId();
@@ -53,15 +51,26 @@ public class FactionsLoader {
 		{
 			public void run() 
 			{
+				FactionsManager.SPAWNERS_BY_FACTION.clear();
 				for (Faction faction : FactionColl.get().getAll()) 
 				{
 					String factionId = faction.getId();
 					if (factionId.equals(NONE) || factionId.equals(WARZONE) || factionId.equals(SAFEZONE)) continue;
-					FactionsManager.SPAWNERS_BY_FACTION.put(faction, getMobSpawners(getLands(faction), faction));
+					FactionsManager.SPAWNERS_BY_FACTION.put(faction, getMobSpawners(faction));
 				}
 				InventoryLoader.updateCreatures();
 			}
 		}.runTaskTimer(FTop.getPlugin(), 0, 15 * 60 * 20L);
+		
+		new BukkitRunnable() 
+		{
+			public void run() 
+			{
+				if (InventoryLoader.updateIsAvailable()) {
+					InventoryLoader.updateGeneral();
+				}
+			}
+		}.runTaskTimerAsynchronously(FTop.getPlugin(), 0, 1 * 60 * 20L);
 		
 		if (Bukkit.getPluginManager().isPluginEnabled("FTopNPCs")) {
 			System.out.println("[FTop] Carregando...");
@@ -69,28 +78,20 @@ public class FactionsLoader {
 		}
 	}
 
-	public static HashSet<Chunk> getLands(Faction fac) {
-		HashSet<Chunk> getChunks = new HashSet<>();
-		for (PS ps : BoardColl.get().getChunks(fac)) {
-			getChunks.add(ps.asBukkitChunk());
-		}
-		return getChunks;
-	}
-
 	public static int getFactionPower(Faction fac) {
 		return fac.getPowerRounded();
 	}
 
 	public static double getFactionCoins(Faction fac) {
-		return fac.getMPlayers().stream().mapToDouble(r -> FTop.Vault.getSaldo(r.getName())).sum();
+		return fac.getMPlayers().stream().mapToDouble(r -> FTop.vault.getSaldo(r)).sum();
 	}
 
-	public static HashMap<EntityType, Integer> getMobSpawners(HashSet<Chunk> chunks, Faction fac) {
+	public static HashMap<EntityType, Integer> getMobSpawners(Faction fac) {
 
 		HashMap<EntityType, Integer> spawners = new HashMap<>();
-
-		for (Chunk c : chunks)	{
-			for (BlockState block : c.getTileEntities()) {
+		
+		for (PS ps : BoardColl.get().getChunks(fac)) {
+			for (BlockState block : ps.asBukkitChunk().getTileEntities()) {
 				if (block.getType() == Material.MOB_SPAWNER) {
 					
 					CreatureSpawner spawner = (CreatureSpawner) block;

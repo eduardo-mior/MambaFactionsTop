@@ -13,7 +13,7 @@ public class ConfigurationLoader {
 			String[] splitted = s.split(",");
 			try {
 				ENTITY_BY_PRICE.put(splitted[0].toUpperCase(), Integer.parseInt(splitted[1]));
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				System.out.println("[Ftop] Erro no arquivo de configuracao do plugin! Linha: " + s);
 				continue;
 			}

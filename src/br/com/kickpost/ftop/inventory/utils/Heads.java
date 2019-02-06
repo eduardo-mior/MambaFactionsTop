@@ -21,6 +21,7 @@ public class Heads {
 	public static ItemStack CINZA_POWER;
 	public static ItemStack CINZA_GERADORES;
 
+	public static ItemStack ARROW;
 
 	public Heads() 
 	{
@@ -34,6 +35,8 @@ public class Heads {
 		CINZA_COINS = new ItemBuilder(CINZA.clone()).setName("§eOrdenar por Coins").setLore("§7Clique para ordenar de acordo", "§7com os Coins de cada Facção.").toItemStack();
 		CINZA_POWER = new ItemBuilder(CINZA.clone()).setName("§eOrdenar por Poder").setLore("§7Clique para ordenar de acordo", "§7com o Poder de cada Facção.").toItemStack();
 		CINZA_GERADORES = new ItemBuilder(CINZA.clone()).setName("§eOrdenar por Geradores").setLore("§7Clique para ordenar de acordo", "§7com o número de Geradores de cada Facção.").toItemStack();
+	
+		ARROW = new ItemBuilder(Material.ARROW).setName("§aVoltar").toItemStack();
 	}
 
 	private static ItemStack getSkull(String url) 
@@ -47,7 +50,7 @@ public class Heads {
 			Field profileField = skullMeta.getClass().getDeclaredField("profile");
 			profileField.setAccessible(true);
 			profileField.set(skullMeta, profile);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 		skull.setItemMeta(skullMeta);

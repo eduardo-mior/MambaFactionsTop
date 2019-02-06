@@ -1,43 +1,60 @@
 package br.com.kickpost.ftop.listeners;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType.SlotType;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 import br.com.kickpost.ftop.inventory.InventoryLoader;
+import br.com.kickpost.ftop.inventory.utils.GuiHolder;
 import br.com.kickpost.ftop.inventory.utils.Type;
 
 public class onClickInventory implements Listener {
 
-	@EventHandler(ignoreCancelled = true)
-	public void onClick(InventoryClickEvent e) {
-		if (e.getSlotType() == SlotType.OUTSIDE || e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR)
+	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+	public void aoClickar(InventoryClickEvent e) {
+		if (e.getCurrentItem() == null || e.getInventory().getType() != InventoryType.CHEST)
 			return;
-
+		
 		Inventory inv = e.getInventory();
-		if (inv.getTitle().startsWith("Ranking Geral - ")) {
+		if (inv.getHolder() instanceof GuiHolder) {
+			
 			e.setCancelled(true);
 			e.setResult(Result.DENY);
 
-			ItemStack item = e.getCurrentItem();
-			if (item.getType().equals(Material.SKULL_ITEM)) {
+			Player p = (Player) e.getWhoClicked();
+			int slot = e.getRawSlot();
+			Type type = ((GuiHolder)inv.getHolder()).getType();
 
-				String itemName = item.getItemMeta().getDisplayName().toLowerCase();
-				Player p = (Player) e.getWhoClicked();
-
-				if (itemName.contains("poder"))
-					new InventoryLoader(p, Type.POWER);
-				if (itemName.contains("coins"))
+			if (inv.getSize() < slot) return;
+			
+			if (type == Type.MENU) {
+				if (slot == 12) 
+					new InventoryLoader(p, Type.GENERAL);
+				if (slot == 14)
 					new InventoryLoader(p, Type.COINS);
-				if (itemName.contains("geradores"))
-					new InventoryLoader(p, Type.SPAWNERS);
 			}
+			
+			if (type == Type.GENERAL) {
+				if (slot == 49) 
+					new InventoryLoader(p, Type.MENU);
+			}
+			
+			else {
+				if (slot == 47)
+					new InventoryLoader(p, Type.MENU);
+				if (slot == 48)
+					new InventoryLoader(p, Type.COINS);
+				if (slot == 49)
+					new InventoryLoader(p, Type.SPAWNERS);
+				if (slot == 50)
+					new InventoryLoader(p, Type.POWER);
+			}
+			
 		}
 	}
 }
