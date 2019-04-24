@@ -1,6 +1,7 @@
 package br.com.kickpost.ftop.inventory;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
@@ -12,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import com.massivecraft.factions.entity.Faction;
 
-import br.com.kickpost.ftop.FTop;
+import br.com.kickpost.ftop.Main;
 import br.com.kickpost.ftop.factions.FactionsManager;
 import br.com.kickpost.ftop.factions.FactionsUtils;
 import br.com.kickpost.ftop.inventory.utils.GuiHolder;
@@ -30,7 +31,7 @@ public class InventoryLoader {
 	private static boolean coinsUpdated = false;
 	private static boolean spawnerUpdated = false;
 	
-	public InventoryLoader(Player p, Type type) {
+	public static void open(Player p, Type type) {
 		switch (type) 
 		{
 			case COINS:
@@ -63,29 +64,8 @@ public class InventoryLoader {
 		}
 	}
 	
-	public static void updateCoins() {
-		Bukkit.getScheduler().runTaskAsynchronously(FTop.getPlugin(), new Runnable() {
-			@Override
-			public void run() {
-				COINS = Bukkit.createInventory(new GuiHolder(Type.COINS), 54, "Ranking Geral - Coins");
-				COINS.setItem(47, Heads.ARROW);
-				COINS.setItem(48, Heads.VERDE_COINS);
-				COINS.setItem(49, Heads.CINZA_GERADORES);
-				COINS.setItem(50, Heads.CINZA_POWER);
-				int slot = 10;
-				int pos = 1;
-				for (Entry<Faction, Double> s : FactionsUtils.organizeMapCoins(FactionsManager.COINS_BY_FACTION).entrySet()) {
-					COINS.setItem(slot, FactionsUtils.getFactionBanner(s.getKey(), new FactionsManager(s.getKey(), s.getValue()).coinsToString(), pos));
-					slot += slot == 16 || slot == 25 ? + 3 : + 1;
-					pos++;
-				}
-				coinsUpdated = true;
-			}
-		});
-	}
-	
 	public static void updatePower() {
-		Bukkit.getScheduler().runTaskAsynchronously(FTop.getPlugin(), new Runnable() {
+		Bukkit.getScheduler().runTaskAsynchronously(Main.get(), new Runnable() {
 			@Override
 			public void run() {
 				POWER = Bukkit.createInventory(new GuiHolder(Type.POWER), 54, "Ranking Geral - Poder");
@@ -95,17 +75,41 @@ public class InventoryLoader {
 				POWER.setItem(50, Heads.VERDE_POWER);
 				int slot = 10;
 				int pos = 1;
-				for (Entry<Faction, Integer> s : FactionsUtils.organizeMapPower(FactionsManager.POWER_BY_FACTION).entrySet()) {
-					POWER.setItem(slot, FactionsUtils.getFactionBanner(s.getKey(), new FactionsManager(s.getKey(), s.getValue()).powerToString(), pos));
+				for (Entry<Faction, Integer> entry : FactionsUtils.organizeMapPower(FactionsManager.POWER_BY_FACTION)) {
+					POWER.setItem(slot, FactionsUtils.getFactionBanner(entry.getKey(), FactionsManager.powerToString(entry.getKey(), entry.getValue()), pos++));
+					if (pos == 22) break;
 					slot += slot == 16 || slot == 25 ? + 3 : + 1;
-					pos++;
+				}
+			}
+		});
+	}
+	
+	public static void updateCoins() {
+		Bukkit.getScheduler().runTaskAsynchronously(Main.get(), new Runnable() {
+			@Override
+			public void run() {
+				COINS = Bukkit.createInventory(new GuiHolder(Type.COINS), 54, "Ranking Geral - Coins");
+				COINS.setItem(47, Heads.ARROW);
+				COINS.setItem(48, Heads.VERDE_COINS);
+				COINS.setItem(49, Heads.CINZA_GERADORES);
+				COINS.setItem(50, Heads.CINZA_POWER);
+				int slot = 10;
+				int pos = 1;
+				for (Entry<Faction, Double> entry : FactionsUtils.organizeMapCoins(FactionsManager.COINS_BY_FACTION)) {
+					COINS.setItem(slot, FactionsUtils.getFactionBanner(entry.getKey(), FactionsManager.coinsToString(entry.getKey(), entry.getValue()), pos++));
+					if (pos == 22) break;
+					slot += slot == 16 || slot == 25 ? + 3 : + 1;
+				}
+				coinsUpdated = true;
+				if (updateIsAvailable()) {
+					updateGeneral();
 				}
 			}
 		});
 	}
 	
 	public static void updateCreatures() {
-		Bukkit.getScheduler().runTaskAsynchronously(FTop.getPlugin(), new Runnable() {
+		Bukkit.getScheduler().runTaskAsynchronously(Main.get(), new Runnable() {
 			@Override
 			public void run() {
 				SPAWNERS = Bukkit.createInventory(new GuiHolder(Type.SPAWNERS), 54, "Ranking Geral - Geradores");
@@ -115,29 +119,38 @@ public class InventoryLoader {
 				SPAWNERS.setItem(50, Heads.CINZA_POWER);
 				int slot = 10;
 				int pos = 1;
-				for (Entry<Faction, Double> s : FactionsUtils.organizeMapCreature(FactionsManager.SPAWNERS_BY_FACTION).entrySet()) {
-					SPAWNERS.setItem(slot, FactionsUtils.getFactionBanner(s.getKey(), new FactionsManager(s.getKey(), s.getValue()).geradoresToString(), pos));
+				for (Entry<Faction, Double> entry : FactionsUtils.organizeMapCreature(FactionsManager.SPAWNERS_BY_FACTION)) {
+					SPAWNERS.setItem(slot, FactionsUtils.getFactionBanner(entry.getKey(), FactionsManager.geradoresToString(entry.getKey(), entry.getValue()), pos++));
+					if (pos == 22) break;
 					slot += slot == 16 || slot == 25 ? + 3 : + 1;
-					pos++;
 				}
 				spawnerUpdated = true;
+				if (updateIsAvailable()) {
+					updateGeneral();
+				}
 			}
 		});
 	}
 	
 	public static void updateGeneral() {
-		Bukkit.getScheduler().runTaskAsynchronously(FTop.getPlugin(), new Runnable() {
+		Bukkit.getScheduler().runTaskAsynchronously(Main.get(), new Runnable() {
 			@Override
 			public void run() {
+				List<Entry<Faction, Double[]>> facs = FactionsUtils.organizeMapGeneral(FactionsManager.SPAWNERS_BY_FACTION, FactionsManager.COINS_BY_FACTION);
 				GENERAL = Bukkit.createInventory(new GuiHolder(Type.GENERAL), 54, "Ranking Geral - Valor");
 				GENERAL.setItem(49, Heads.ARROW);
 				int slot = 10;
 				int pos = 1;
-				for (Entry<Faction, Double[]> s : FactionsUtils.organizeMapGeneral(FactionsManager.SPAWNERS_BY_FACTION, FactionsManager.COINS_BY_FACTION).entrySet()) {
-					GENERAL.setItem(slot, FactionsUtils.getFactionBanner(s.getKey(), new FactionsManager(s.getKey(), s.getValue()).valueToString(), pos));
+				for (Entry<Faction, Double[]> entry : facs) {
+					GENERAL.setItem(slot, FactionsUtils.getFactionBanner(entry.getKey(), FactionsManager.valueToString(entry.getValue()), pos++));
+					if (pos == 22) break;
 					slot += slot == 16 || slot == 25 ? + 3 : + 1;
-					pos++;
 				}
+				pos = 1;
+				for (Entry<Faction, Double[]> entry : facs) {
+					FactionsManager.POS_BY_FACTION.put(entry.getKey(), pos++);
+				}
+				FactionsManager.ENABLED = Boolean.TRUE;
 				spawnerUpdated = false;
 				coinsUpdated = false;
 			}
@@ -145,7 +158,7 @@ public class InventoryLoader {
 	}
 	
 	public static void updateMenu() {
-		Bukkit.getScheduler().runTaskAsynchronously(FTop.getPlugin(), new Runnable() {
+		Bukkit.getScheduler().runTaskAsynchronously(Main.get(), new Runnable() {
 			@Override
 			public void run() {
 				MENU = Bukkit.createInventory(new GuiHolder(Type.MENU), 27, "Escolha uma categoria:");

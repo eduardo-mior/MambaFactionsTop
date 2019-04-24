@@ -8,9 +8,9 @@ import net.milkbowl.vault.economy.Economy;
 public class VaultHook {
 
 	private static Economy ECONOMY;
-
+	
 	@SuppressWarnings("deprecation")
-	public double getSaldo(MPlayer mp) {
+	public static double getSaldo(MPlayer mp) {
 		try {
 			return ECONOMY.getBalance(mp.getName());
 		} catch (Throwable e) {

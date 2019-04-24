@@ -1,10 +1,9 @@
 package br.com.kickpost.ftop.factions;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,8 +30,8 @@ public class FactionsUtils {
 		return bandeira;
 	}
 
-	public static Map<Faction, Double> organizeMapCoins(Map<Faction, Double> unsortMap) {
-		List<Entry<Faction, Double>> list = new LinkedList<Entry<Faction, Double>>(unsortMap.entrySet());
+	public static List<Entry<Faction, Double>> organizeMapCoins(Map<Faction, Double> unsortMap) {
+		List<Entry<Faction, Double>> list = new ArrayList<Entry<Faction, Double>>(unsortMap.entrySet());
 
 		// Sorting the list based on values
 		Collections.sort(list, new Comparator<Entry<Faction, Double>>() {
@@ -41,19 +40,11 @@ public class FactionsUtils {
 			}
 		});
 
-		// Maintaining insertion order with the help of LinkedList
-		Map<Faction, Double> sortedMap = new LinkedHashMap<>();
-		Integer v = 1;
-		for (Entry<Faction, Double> entry : list) {
-			sortedMap.put(entry.getKey(), entry.getValue());
-			if (v == 21) break;
-			v++;
-		}
-		return sortedMap;
+		return list;
 	}
 	
-	public static Map<Faction, Integer> organizeMapPower(Map<Faction, Integer> unsortMap) {
-		List<Entry<Faction, Integer>> list = new LinkedList<Entry<Faction, Integer>>(unsortMap.entrySet());
+	public static List<Entry<Faction, Integer>> organizeMapPower(Map<Faction, Integer> unsortMap) {
+		List<Entry<Faction, Integer>> list = new ArrayList<Entry<Faction, Integer>>(unsortMap.entrySet());
 
 		// Sorting the list based on values
 		Collections.sort(list, new Comparator<Entry<Faction, Integer>>() {
@@ -62,18 +53,10 @@ public class FactionsUtils {
 			}
 		});
 
-		// Maintaining insertion order with the help of LinkedList
-		Map<Faction, Integer> sortedMap = new LinkedHashMap<>();
-		Integer v = 1;
-		for (Entry<Faction, Integer> entry : list) {
-			sortedMap.put(entry.getKey(), entry.getValue());
-			if (v == 21) break;
-			v++;
-		}
-		return sortedMap;
+		return list;
 	}
 	
-	public static Map<Faction, Double> organizeMapCreature(HashMap<Faction, HashMap<EntityType, Integer>> SPAWNERS_BY_FACTION) {
+	public static List<Entry<Faction, Double>> organizeMapCreature(HashMap<Faction, HashMap<EntityType, Integer>> SPAWNERS_BY_FACTION) {
 		Map<Faction, Double> valueMap = new HashMap<>();
 		
 		for (Entry<Faction, HashMap<EntityType, Integer>> s : SPAWNERS_BY_FACTION.entrySet()) {
@@ -83,7 +66,7 @@ public class FactionsUtils {
 		return organizeMapCoins(valueMap);
 	}
 	
-	public static Map<Faction, Double[]> organizeMapGeneral(HashMap<Faction, HashMap<EntityType, Integer>> valueMapSpawners, Map<Faction, Double> valueMapCoins) {
+	public static List<Entry<Faction, Double[]>> organizeMapGeneral(HashMap<Faction, HashMap<EntityType, Integer>> valueMapSpawners, Map<Faction, Double> valueMapCoins) {
 		
 		Map<Faction, Double[]> valueMap = new HashMap<>();
 		for (Entry<Faction, HashMap<EntityType, Integer>> s : valueMapSpawners.entrySet()) {
@@ -93,7 +76,7 @@ public class FactionsUtils {
 			valueMap.put(s.getKey(), value);
 		}
 		
-		List<Entry<Faction, Double[]>> list = new LinkedList<Entry<Faction, Double[]>>(valueMap.entrySet());
+		List<Entry<Faction, Double[]>> list = new ArrayList<Entry<Faction, Double[]>>(valueMap.entrySet());
 		
 		// Sorting the list based on values
 		Collections.sort(list, new Comparator<Entry<Faction, Double[]>>() {
@@ -101,16 +84,8 @@ public class FactionsUtils {
 				return Double.compare(o2.getValue()[0] + o2.getValue()[1], o1.getValue()[0] + o1.getValue()[1]);
 			}
 		});
-
-		// Maintaining insertion order with the help of LinkedList
-		Map<Faction, Double[]> sortedMap = new LinkedHashMap<>();
-		Integer v = 1;
-		for (Entry<Faction, Double[]> entry : list) {
-			sortedMap.put(entry.getKey(), entry.getValue());
-			if (v == 21) break;
-			v++;
-		}
-		return sortedMap;
+		
+		return list;
 	}
 	
 	@SuppressWarnings("deprecation")

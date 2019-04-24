@@ -1,53 +1,31 @@
 package br.com.kickpost.ftop;
 
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
+import java.util.Collection;
 
-import br.com.kickpost.ftop.configuration.ConfigurationLoader;
-import br.com.kickpost.ftop.factions.FactionsLoader;
-import br.com.kickpost.ftop.hooks.VaultHook;
-import br.com.kickpost.ftop.inventory.utils.Heads;
-import br.com.kickpost.ftop.listeners.onClickInventory;
-import br.com.kickpost.ftop.listeners.onPlayerCommand;
+import com.massivecraft.factions.entity.Faction;
 
-public class FTop extends JavaPlugin {
+import br.com.kickpost.ftop.factions.FactionsManager;
 
-	public static VaultHook vault;
-
-	public void onEnable() {
-		loadConfiguration();
-		registerListeners();
-		loadFactions();
-		loadHeads();
-		loadHook();
-	}
-
-	private void registerListeners() {
-		PluginManager pm = Bukkit.getPluginManager();
-		pm.registerEvents(new onPlayerCommand(), this);
-		pm.registerEvents(new onClickInventory(), this);
-	}
-
-	private void loadFactions() {
-		FactionsLoader.loadAllFactions();
-	}
-
-	private void loadHook() {
-		vault = new VaultHook();
+public class FTop {
+	
+	private FTop() {}
+	private static FTop i = new FTop();
+	public static FTop get() { return i; }
+	
+	public int getTopPosition(Faction faction) {
+		try {
+			return FactionsManager.POS_BY_FACTION.get(faction);
+		} catch (Throwable e) {
+			return -1;
+		}
 	}
 	
-	private void loadHeads() {
-		new Heads();
+	public Collection<Faction> getTopFactions() {
+		return FactionsManager.POS_BY_FACTION.keySet();
 	}
 	
-	private void loadConfiguration() {
-		saveDefaultConfig();
-		ConfigurationLoader.load();
-	}
-
-	public static FTop getPlugin() {
-		return FTop.getPlugin(FTop.class);
+	public boolean isLoaded() {
+		return FactionsManager.ENABLED;
 	}
 	
 }
