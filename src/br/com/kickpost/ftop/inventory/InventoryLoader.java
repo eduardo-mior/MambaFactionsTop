@@ -14,6 +14,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import com.massivecraft.factions.entity.Faction;
 
 import br.com.kickpost.ftop.Main;
+import br.com.kickpost.ftop.events.FactionsTopCoinsUpdateEvent;
+import br.com.kickpost.ftop.events.FactionsTopGeneralUpdateEvent;
+import br.com.kickpost.ftop.events.FactionsTopPowerUpdateEvent;
+import br.com.kickpost.ftop.events.FactionsTopSpawnersUpdateEvent;
 import br.com.kickpost.ftop.factions.FactionsManager;
 import br.com.kickpost.ftop.factions.FactionsUtils;
 import br.com.kickpost.ftop.inventory.utils.GuiHolder;
@@ -60,7 +64,7 @@ public class InventoryLoader {
 				break;
 				
 			default:
-				throw new NoSuchMethodError("Tipo de inventario invalido!");		
+				throw new NoSuchFieldError("Tipo de inventario invalido!");		
 		}
 	}
 	
@@ -68,6 +72,7 @@ public class InventoryLoader {
 		Bukkit.getScheduler().runTaskAsynchronously(Main.get(), new Runnable() {
 			@Override
 			public void run() {
+				List<Entry<Faction, Integer>> facs = FactionsUtils.organizeMapPower(FactionsManager.POWER_BY_FACTION);
 				POWER = Bukkit.createInventory(new GuiHolder(Type.POWER), 54, "Ranking Geral - Poder");
 				POWER.setItem(47, Heads.ARROW);
 				POWER.setItem(48, Heads.CINZA_COINS);
@@ -75,10 +80,13 @@ public class InventoryLoader {
 				POWER.setItem(50, Heads.VERDE_POWER);
 				int slot = 10;
 				int pos = 1;
-				for (Entry<Faction, Integer> entry : FactionsUtils.organizeMapPower(FactionsManager.POWER_BY_FACTION)) {
+				for (Entry<Faction, Integer> entry : facs) {
 					POWER.setItem(slot, FactionsUtils.getFactionBanner(entry.getKey(), FactionsManager.powerToString(entry.getKey(), entry.getValue()), pos++));
 					if (pos == 22) break;
 					slot += slot == 16 || slot == 25 ? + 3 : + 1;
+				}
+				if (!facs.isEmpty()) {
+					Bukkit.getPluginManager().callEvent(new FactionsTopPowerUpdateEvent(facs));
 				}
 			}
 		});
@@ -88,6 +96,7 @@ public class InventoryLoader {
 		Bukkit.getScheduler().runTaskAsynchronously(Main.get(), new Runnable() {
 			@Override
 			public void run() {
+				List<Entry<Faction, Double>> facs =  FactionsUtils.organizeMapCoins(FactionsManager.COINS_BY_FACTION);
 				COINS = Bukkit.createInventory(new GuiHolder(Type.COINS), 54, "Ranking Geral - Coins");
 				COINS.setItem(47, Heads.ARROW);
 				COINS.setItem(48, Heads.VERDE_COINS);
@@ -95,10 +104,13 @@ public class InventoryLoader {
 				COINS.setItem(50, Heads.CINZA_POWER);
 				int slot = 10;
 				int pos = 1;
-				for (Entry<Faction, Double> entry : FactionsUtils.organizeMapCoins(FactionsManager.COINS_BY_FACTION)) {
+				for (Entry<Faction, Double> entry : facs) {
 					COINS.setItem(slot, FactionsUtils.getFactionBanner(entry.getKey(), FactionsManager.coinsToString(entry.getKey(), entry.getValue()), pos++));
 					if (pos == 22) break;
 					slot += slot == 16 || slot == 25 ? + 3 : + 1;
+				}
+				if (!facs.isEmpty()) {
+					Bukkit.getPluginManager().callEvent(new FactionsTopCoinsUpdateEvent(facs));
 				}
 				coinsUpdated = true;
 				if (updateIsAvailable()) {
@@ -112,6 +124,7 @@ public class InventoryLoader {
 		Bukkit.getScheduler().runTaskAsynchronously(Main.get(), new Runnable() {
 			@Override
 			public void run() {
+				List<Entry<Faction, Double>> facs = FactionsUtils.organizeMapCreature(FactionsManager.SPAWNERS_BY_FACTION);
 				SPAWNERS = Bukkit.createInventory(new GuiHolder(Type.SPAWNERS), 54, "Ranking Geral - Geradores");
 				SPAWNERS.setItem(47, Heads.ARROW);
 				SPAWNERS.setItem(48, Heads.CINZA_COINS);
@@ -119,10 +132,13 @@ public class InventoryLoader {
 				SPAWNERS.setItem(50, Heads.CINZA_POWER);
 				int slot = 10;
 				int pos = 1;
-				for (Entry<Faction, Double> entry : FactionsUtils.organizeMapCreature(FactionsManager.SPAWNERS_BY_FACTION)) {
+				for (Entry<Faction, Double> entry : facs) {
 					SPAWNERS.setItem(slot, FactionsUtils.getFactionBanner(entry.getKey(), FactionsManager.geradoresToString(entry.getKey(), entry.getValue()), pos++));
 					if (pos == 22) break;
 					slot += slot == 16 || slot == 25 ? + 3 : + 1;
+				}
+				if (!facs.isEmpty()) {
+					Bukkit.getPluginManager().callEvent(new FactionsTopSpawnersUpdateEvent(facs));
 				}
 				spawnerUpdated = true;
 				if (updateIsAvailable()) {
@@ -149,6 +165,9 @@ public class InventoryLoader {
 				pos = 1;
 				for (Entry<Faction, Double[]> entry : facs) {
 					FactionsManager.POS_BY_FACTION.put(entry.getKey(), pos++);
+				}
+				if (!facs.isEmpty()) {
+					Bukkit.getPluginManager().callEvent(new FactionsTopGeneralUpdateEvent(facs));
 				}
 				FactionsManager.ENABLED = Boolean.TRUE;
 				spawnerUpdated = false;
