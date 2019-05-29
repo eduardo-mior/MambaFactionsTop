@@ -1,5 +1,5 @@
 name: FTop
 authors: [KickPost, RUSHyoutuber]
-version: 3.0
+version: 4.0
 main: br.com.kickpost.ftop.Main
 depends: [MassiveCore, Factions, Vault]
